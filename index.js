@@ -115,7 +115,7 @@ app.delete('/users/:email', (req, res) => {
 });
 
 app.get('/posts', (req, res) => {
-    Posts.find({}) 
+    Post.find({}) 
         .then(posts => {
             console.log("All posts", posts);
             res.json({ posts: posts});
@@ -128,7 +128,7 @@ app.get('/posts', (req, res) => {
 
 app.get('/posts/:title', (req, res) => {
     console.log("Find post by title", req.params.title)
-    Posts.findOne({ 
+    Post.findOne({ 
         posts: req.params.title, 
     })
     .then(post => {
@@ -200,7 +200,7 @@ app.delete('/posts/:title', (req, res) => {
 })
 
 app.get('/comments', (req, res) => {
-    Comments.find({}) 
+    Comment.find({}) 
     .then(comments => {
         console.log('All comments', comments);
         res.json({ comments: comments})
@@ -213,8 +213,10 @@ app.get('/comments', (req, res) => {
 
 app.get('/comments/:header', (req, res) => {
     console.log('find one comment by', req.params.header)
-    Comments.findOne({
-        header: req.params.header
+    Comment.findOne({
+        header: req.params.header,
+        content: req.body.content,
+        date: req.body.date
     })
     .then(comment => {
         console.log('Here is the comment', comment);
@@ -227,8 +229,10 @@ app.get('/comments/:header', (req, res) => {
 });
 
 app.post('/comments', (req, res) => {
-    Comments.create({
-        header: req.body.header
+    Comment.create({
+        header: req.body.header,
+        content: req.body.content,
+        date: req.body.date
     })
     .then(comment => {
         console.log('New comment =>>', comment);
@@ -242,12 +246,14 @@ app.post('/comments', (req, res) => {
 
 app.put('/comments/:header', (req, res) => {
     console.log('Route is being on PUT')
-    Comments.findOne({ header: req.params.header })
+    Comment.findOne({ header: req.params.header })
     .then(foundComment => {
         console.log('Found comment', foundComment);
             Comment.findOneAndUpdate({ header: req.params.header },
         {
-            header: req.body.header ? req.body.header : foundComment.header
+            header: req.body.header ? req.body.header : foundComment.header,
+            content: req.body.content ? req.body.content : foundComment.content,
+            date: req.body.date ? req.body.date : foundComment.date,
         })
         .then(comment => {
             console.log('Comment was updated', comment);
@@ -265,7 +271,7 @@ app.put('/comments/:header', (req, res) => {
 });
 
 app.delete('/comments/:header', (req, res) => {
-    Comments.findOneAndRemove({ header: req.params.header })
+    Comment.findOneAndRemove({ header: req.params.header })
     .then(response => {
         console.log('This comment has been removed', response);
         res.json({ message: `${req.params.header} was deleted` })
